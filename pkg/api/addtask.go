@@ -52,7 +52,7 @@ func writeJson(w http.ResponseWriter, data interface{}) {
 func checkDate(task *db.Task) error {
 	now := time.Now()
 	// Проверка формата даты
-	if task.Date == "" {
+	if task.Date == "" || task.Date == "today" {
 		task.Date = now.Format("20060102")
 	} else if !isValidDateFormat(task.Date) {
 		return fmt.Errorf("некорректный формат даты: %s", task.Date)
