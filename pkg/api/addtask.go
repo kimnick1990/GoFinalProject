@@ -51,6 +51,7 @@ func writeJson(w http.ResponseWriter, data interface{}) {
 
 func checkDate(task *db.Task) error {
 	now := time.Now()
+	// Проверка формата даты
 	if task.Date == "" {
 		task.Date = now.Format("20060102")
 	} else if !isValidDateFormat(task.Date) {
@@ -68,7 +69,7 @@ func checkDate(task *db.Task) error {
 			return err
 		}
 		task.Date = next
-	} else if afterNow(now, t) {
+	} else if t.Before(now) {
 		// Если дата меньше текущего времени и нет правила повторения
 		task.Date = now.Format("20060102")
 	}
