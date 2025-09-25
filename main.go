@@ -5,7 +5,8 @@ import (
 	"log"
 	"net/http"
 
-	"pkg/db" // Импортируйте ваш пакет db
+	"github.com/kimnick1990/GoFinalProject/pkg/api" // Импортируем API пакет
+	"github.com/kimnick1990/GoFinalProject/pkg/db"  // Импортируем пакет db
 )
 
 func main() {
@@ -17,7 +18,8 @@ func main() {
 		log.Fatal("Ошибка при инициализации базы данных:", err)
 	}
 
-	webDir := "./web"
+	api.Init() // Инициализируем API
+
 	log.Println("Слушаю на порту:", *port)
-	log.Fatal(http.ListenAndServe(":"+*port, http.FileServer(http.Dir(webDir))))
+	log.Fatal(http.ListenAndServe(":"+*port, nil))
 }
