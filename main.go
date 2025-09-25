@@ -20,6 +20,8 @@ func main() {
 
 	api.Init() // Инициализируем API
 
+	http.HandleFunc("/api/task", api.AddTaskHandler) // Регистрируем обработчик
+
 	log.Println("Слушаю на порту:", *port)
 	log.Fatal(http.ListenAndServe(":"+*port, nil))
 }
