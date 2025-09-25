@@ -26,7 +26,7 @@ func Init(dbFile string) error {
 	if err != nil {
 		return err
 	}
-	defer db.Close()
+	//defer db.Close()
 
 	_, err = db.Exec(schema)
 	if err != nil {

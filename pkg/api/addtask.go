@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -52,6 +53,8 @@ func checkDate(task *db.Task) error {
 	now := time.Now()
 	if task.Date == "" {
 		task.Date = now.Format("20060102")
+	} else if !isValidDateFormat(task.Date) {
+		return fmt.Errorf("некорректный формат даты: %s", task.Date)
 	}
 
 	t, err := time.Parse("20060102", task.Date)
@@ -71,4 +74,10 @@ func checkDate(task *db.Task) error {
 	}
 
 	return nil
+}
+
+// Функция для проверки формата даты
+func isValidDateFormat(date string) bool {
+	_, err := time.Parse("20060102", date)
+	return err == nil
 }
