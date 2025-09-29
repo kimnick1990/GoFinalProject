@@ -13,14 +13,13 @@ func main() {
 	port := flag.String("port", "7540", "Порт для прослушивания")
 	flag.Parse()
 
-	// Добавляем вызов инициализации базы данных
 	if err := db.Init("scheduler.db"); err != nil {
-		log.Fatal("Ошибка при инициализации базы данных:", err)
+		log.Fatal("Ошибка при инициализации базы данных:", err) // Добавляем вызов инициализации базы данных
 	}
 
 	api.Init() // Инициализируем API
 
-	http.HandleFunc("/api/task", api.AddTaskHandler) // Регистрируем обработчик
+	http.Handle("/", http.FileServer(http.Dir("web"))) // Подключаем директорию web
 
 	log.Println("Слушаю на порту:", *port)
 	log.Fatal(http.ListenAndServe(":"+*port, nil))

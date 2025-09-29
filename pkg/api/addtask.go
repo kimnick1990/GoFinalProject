@@ -16,44 +16,44 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 	// Десериализация JSON в task
 	err := json.NewDecoder(r.Body).Decode(&task)
 	if err != nil {
-		writeJson(w, map[string]string{"error": "Ошибка десериализации JSON"})
+		WriteJson(w, map[string]string{"error": "Ошибка десериализации JSON"})
 		return
 	}
 
 	// Проверка корректности task.Title
 	if task.Title == "" {
-		writeJson(w, map[string]string{"error": "Не указан заголовок задачи"})
+		WriteJson(w, map[string]string{"error": "Не указан заголовок задачи"})
 		return
 	}
 
 	// Проверка даты и правила повторения
 	err = checkDate(&task)
 	if err != nil {
-		writeJson(w, map[string]string{"error": err.Error()})
+		WriteJson(w, map[string]string{"error": err.Error()})
 		return
 	}
 
 	// Вызов db.AddTask для добавления задачи в БД
 	id, err := db.AddTask(&task)
 	if err != nil {
-		writeJson(w, map[string]string{"error": err.Error()})
+		WriteJson(w, map[string]string{"error": err.Error()})
 		return
 	}
 
 	// Сериализация результата в JSON и отправка ответа
-	writeJson(w, map[string]interface{}{"id": id})
+	WriteJson(w, map[string]interface{}{"id": id})
 }
 
-func writeJson(w http.ResponseWriter, data interface{}) {
-	jsonData, _ := json.Marshal(data)
-	w.Write(jsonData)
-}
+//func writeJson(w http.ResponseWriter, data interface{}) {
+//jsonData, _ := json.Marshal(data)
+//w.Write(jsonData)
+//}
 
 func checkDate(task *db.Task) error {
 	now := time.Now()
 	// Проверка формата даты
-	if task.Date == "" || task.Date == "today" {
-		task.Date = now.Format("20060102")
+	if task.Date == "" {
+		task.Date = now.Format("20060102") // Если дата пустая, ставим сегодняшнее число
 	} else if !isValidDateFormat(task.Date) {
 		return fmt.Errorf("некорректный формат даты: %s", task.Date)
 	}
@@ -63,16 +63,18 @@ func checkDate(task *db.Task) error {
 		return err
 	}
 
-	if len(task.Repeat) > 0 {
-		next, err := NextDate(now, task.Date, task.Repeat)
-		if err != nil {
-			return err
+	if t.Before(now) { // Если дата в прошлом
+		if len(task.Repeat) > 0 {
+			next, err := NextDate(now, task.Date, task.Repeat)
+			if err != nil {
+				return err
+			}
+			task.Date = next // Обновляем дату задачи
+		} else {
+			task.Date = now.Format("20060102") // Ставим сегодняшнюю дату, если нет правила повторения
 		}
-		task.Date = next
-	} else if t.Before(now) {
-		// Если дата меньше текущего времени и нет правила повторения
-		task.Date = now.Format("20060102")
 	}
+	// Если дата сегодняшняя или будущая, ничего не делаем
 
 	return nil
 }

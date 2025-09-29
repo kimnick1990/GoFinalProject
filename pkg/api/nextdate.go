@@ -49,6 +49,7 @@ func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 		if interval > maxInterval {
 			return "", fmt.Errorf("превышен максимально допустимый интервал")
 		}
+
 		for {
 			date = date.AddDate(0, 0, interval)
 			if afterNow(date, now) {
@@ -64,11 +65,11 @@ func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 
 // afterNow проверяет, больше ли первая дата второй без учёта времени
 func afterNow(date, now time.Time) bool {
-	return date.After(now)
+	return date.Format("20060102") > now.Format("20060102")
 }
 
 // nextDayHandler обрабатывает GET-запросы к /api/nextdate
-func nextDayHandler(w http.ResponseWriter, r *http.Request) {
+func NextDayHandler(w http.ResponseWriter, r *http.Request) {
 	// Получение параметров запроса
 	nowParam := r.FormValue("now")
 	dstart := r.FormValue("date")
