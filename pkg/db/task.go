@@ -13,9 +13,9 @@ type Task struct {
 	Repeat  string `json:"repeat"`
 }
 
+// Добавление функции AddTask
 func AddTask(task *Task) (int64, error) {
 	var id int64
-	// Определите запрос
 	query := `INSERT INTO scheduler (date, title, comment, repeat) VALUES ($1, $2, $3, $4)`
 	res, err := db.Exec(query, task.Date, task.Title, task.Comment, task.Repeat)
 	if err == nil {
@@ -24,6 +24,7 @@ func AddTask(task *Task) (int64, error) {
 	return id, err
 }
 
+// Добавление функции Tasks
 func Tasks(limit int) ([]*Task, error) {
 	rows, err := db.Query(fmt.Sprintf("SELECT * FROM scheduler ORDER BY date ASC LIMIT %d", limit))
 	if err != nil {
@@ -72,7 +73,40 @@ func UpdateTask(task *Task) error {
 		return err
 	}
 	if count == 0 {
-		return fmt.Errorf("incorrect id for updating task")
+		return fmt.Errorf("неверный идентификатор для обновления задачи")
+	}
+	return nil
+}
+
+// Добавление функции DeleteTask
+func DeleteTask(id string) error {
+	res, err := db.Exec("DELETE FROM scheduler WHERE id = $1", id)
+	if err != nil {
+		return err
+	}
+	count, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		return fmt.Errorf("задача с указанным идентификатором не найдена")
+	}
+	return nil
+}
+
+// Добавление функции UpdateDate
+func UpdateDate(nextDate string, id string) error {
+	query := "UPDATE scheduler SET date = $1 WHERE id = $2"
+	res, err := db.Exec(query, nextDate, id)
+	if err != nil {
+		return err
+	}
+	count, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		return fmt.Errorf("неверный идентификатор для обновления задачи")
 	}
 	return nil
 }

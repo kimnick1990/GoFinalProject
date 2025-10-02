@@ -9,6 +9,7 @@ import (
 	"github.com/kimnick1990/GoFinalProject/pkg/db"
 )
 
+// Хэндлер GETPOST запроса к /api/nextdate
 func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	var task db.Task
@@ -44,13 +45,18 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 	WriteJson(w, map[string]interface{}{"id": id})
 }
 
-//func writeJson(w http.ResponseWriter, data interface{}) {
-//jsonData, _ := json.Marshal(data)
-//w.Write(jsonData)
-//}
+func WriteJson(w http.ResponseWriter, data interface{}) {
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(jsonData)
+}
 
 func checkDate(task *db.Task) error {
-	now := time.Now()
+	now := time.Now().Truncate(24 * time.Hour) // Устанавливаем время на начало дня
 	// Проверка формата даты
 	if task.Date == "" {
 		task.Date = now.Format("20060102") // Если дата пустая, ставим сегодняшнее число
@@ -62,6 +68,7 @@ func checkDate(task *db.Task) error {
 	if err != nil {
 		return err
 	}
+	t = t.Truncate(24 * time.Hour) // Устанавливаем время даты задачи на начало дня
 
 	if t.Before(now) { // Если дата в прошлом
 		if len(task.Repeat) > 0 {

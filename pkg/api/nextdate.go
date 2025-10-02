@@ -11,7 +11,7 @@ import (
 const dateFormat = "20060102"
 const maxInterval = 400 // Максимальный допустимый интервал в днях
 
-// NextDate вычисляет следующую дату на основе правила повторения
+// функция NextDate вычисляет следующую дату на основе правила повторения
 func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 	// Проверка на пустой параметр repeat
 	if repeat == "" {
@@ -63,14 +63,13 @@ func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 	return date.Format(dateFormat), nil
 }
 
-// afterNow проверяет, больше ли первая дата второй без учёта времени
+// функция afterNow проверяет, больше ли первая дата второй без учёта времени
 func afterNow(date, now time.Time) bool {
 	return date.Format("20060102") > now.Format("20060102")
 }
 
-// nextDayHandler обрабатывает GET-запросы к /api/nextdate
+// Хэндлер GET-запросы к /api/nextdate
 func NextDayHandler(w http.ResponseWriter, r *http.Request) {
-	// Получение параметров запроса
 	nowParam := r.FormValue("now")
 	dstart := r.FormValue("date")
 	repeat := r.FormValue("repeat")
@@ -87,8 +86,7 @@ func NextDayHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Вычисление следующей даты
-	nextDate, err := NextDate(now, dstart, repeat)
+	nextDate, err := NextDate(now, dstart, repeat) // Вычисление следующей даты
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
