@@ -26,8 +26,8 @@ func AddTask(task *Task) (int64, error) {
 
 // Добавление функции Tasks
 func Tasks(limit int) ([]*Task, error) {
-	rows, err := db.Query(fmt.Sprintf("SELECT * FROM scheduler ORDER BY date ASC LIMIT %d", limit))
-	if err != nil {
+	rows, err := db.Query(fmt.Sprintf("SELECT ID, Date, Title, Comment, Repeat FROM scheduler ORDER BY date ASC LIMIT %d", limit))
+	if err != nil { // Обработка ошибки при выполнении запроса
 		return nil, err
 	}
 	defer rows.Close()
@@ -35,8 +35,8 @@ func Tasks(limit int) ([]*Task, error) {
 	var tasks []*Task
 	for rows.Next() {
 		var task Task
-		err := rows.Scan(&task.ID, &task.Date, &task.Title, &task.Comment, &task.Repeat)
-		if err != nil {
+		err := rows.Scan(&task.ID, &task.Date, &task.Title, &task.Comment, &task.Repeat) // Попытка сканирования данных
+		if err != nil {                                                                  // Обработка ошибки при сканировании данных
 			return nil, err
 		}
 		tasks = append(tasks, &task)
@@ -52,7 +52,7 @@ func Tasks(limit int) ([]*Task, error) {
 // Добавление функции GetTask
 func GetTask(id string) (*Task, error) {
 	var task Task
-	err := db.QueryRow("SELECT * FROM scheduler WHERE id = $1", id).Scan(&task.ID, &task.Date, &task.Title, &task.Comment, &task.Repeat)
+	err := db.QueryRow("SELECT ID, Date, Title, Comment, Repeat FROM scheduler WHERE id = $1", id).Scan(&task.ID, &task.Date, &task.Title, &task.Comment, &task.Repeat)
 	if err == sql.ErrNoRows {
 		return nil, fmt.Errorf("задача не найдена")
 	} else if err != nil {

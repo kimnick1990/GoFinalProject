@@ -59,12 +59,12 @@ func checkDate(task *db.Task) error {
 	now := time.Now().Truncate(24 * time.Hour) // Устанавливаем время на начало дня
 	// Проверка формата даты
 	if task.Date == "" {
-		task.Date = now.Format("20060102") // Если дата пустая, ставим сегодняшнее число
+		task.Date = now.Format(dateFormat) // Если дата пустая, ставим сегодняшнее число
 	} else if !isValidDateFormat(task.Date) {
 		return fmt.Errorf("некорректный формат даты: %s", task.Date)
 	}
 
-	t, err := time.Parse("20060102", task.Date)
+	t, err := time.Parse(dateFormat, task.Date)
 	if err != nil {
 		return err
 	}
@@ -78,7 +78,7 @@ func checkDate(task *db.Task) error {
 			}
 			task.Date = next // Обновляем дату задачи
 		} else {
-			task.Date = now.Format("20060102") // Ставим сегодняшнюю дату, если нет правила повторения
+			task.Date = now.Format(dateFormat) // Ставим сегодняшнюю дату, если нет правила повторения
 		}
 	}
 	// Если дата сегодняшняя или будущая, ничего не делаем
@@ -88,6 +88,6 @@ func checkDate(task *db.Task) error {
 
 // Функция для проверки формата даты
 func isValidDateFormat(date string) bool {
-	_, err := time.Parse("20060102", date)
+	_, err := time.Parse(dateFormat, date)
 	return err == nil
 }

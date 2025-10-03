@@ -65,7 +65,7 @@ func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 
 // функция afterNow проверяет, больше ли первая дата второй без учёта времени
 func afterNow(date, now time.Time) bool {
-	return date.Format("20060102") > now.Format("20060102")
+	return date.Format(dateFormat) > now.Format(dateFormat)
 }
 
 // Хэндлер GET-запросы к /api/nextdate
